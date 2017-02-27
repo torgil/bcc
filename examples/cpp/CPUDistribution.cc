@@ -14,17 +14,27 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "BPF.h"
+#include "shared_table.h"
+#include "table_desc.h"
+#include "common.h"
+
+const std::string BPF_TABLES = R"(
+BPF_TABLE_PUBLIC("hash", pid_t, int, pid_to_cpu, 1024);
+BPF_TABLE_PUBLIC("hash", pid_t, uint64_t, pid_to_ts, 1024);
+BPF_TABLE_PUBLIC("hash", int, uint64_t, cpu_time, 1024);
+)";
 
 const std::string BPF_PROGRAM = R"(
 #include <linux/sched.h>
 #include <uapi/linux/ptrace.h>
-
-BPF_HASH(pid_to_cpu, pid_t, int);
-BPF_HASH(pid_to_ts, pid_t, uint64_t);
-BPF_HASH(cpu_time, int, uint64_t);
+BPF_TABLE("extern", pid_t, int, pid_to_cpu, 1024);
+BPF_TABLE("extern", pid_t, uint64_t, pid_to_ts, 1024);
+BPF_TABLE("extern", int, uint64_t, cpu_time, 1024);
+BPF_TABLE("array", int, struct task_struct, tasks, 10);
 
 int task_switch_event(struct pt_regs *ctx, struct task_struct *prev) {
   pid_t prev_pid = prev->pid;
@@ -59,8 +69,16 @@ int task_switch_event(struct pt_regs *ctx, struct task_struct *prev) {
 )";
 
 int main(int argc, char** argv) {
-  ebpf::BPF bpf;
-  auto init_res = bpf.init(BPF_PROGRAM);
+  auto ts = ebpf::createSharedTableStorage();
+  ebpf::BPF tables(0, &*ts);
+  auto init_res = tables.init(BPF_TABLES);
+  if (init_res.code() != 0) {
+    std::cerr << init_res.msg() << std::endl;
+    return 1;
+  }
+
+  ebpf::BPF bpf(0, &*ts);
+  init_res = bpf.init(BPF_PROGRAM, {"-w"});
   if (init_res.code() != 0) {
     std::cerr << init_res.msg() << std::endl;
     return 1;
