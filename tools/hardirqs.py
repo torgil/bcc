@@ -14,7 +14,7 @@
 # 19-Oct-2015   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 from time import sleep, strftime
 import argparse
 
@@ -148,7 +148,7 @@ while (1):
     else:
         print("%-26s %11s" % ("HARDIRQ", "TOTAL_" + label))
         for k, v in sorted(dist.items(), key=lambda dist: dist[1].value):
-            print("%-26s %11d" % (k.name.decode(), v.value / factor))
+            print("%-26s %11d" % (to_string(k.name), v.value / factor))
     dist.clear()
 
     countdown -= 1

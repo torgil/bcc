@@ -18,7 +18,7 @@
 # 12-Jan-2016   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 import argparse
 import ctypes as ct
 import time
@@ -115,7 +115,7 @@ def print_event(cpu, data, size):
 
     if verbose:
         print("%-18.9f %-12.12s %-6d %-3d %s" %
-              (ts, event.comm.decode(), event.pid, cpu, function))
+              (ts, to_string(event.comm), event.pid, cpu, function))
     else:
         print("%-18.9f %s" % (ts, function))
 

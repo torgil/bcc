@@ -47,7 +47,7 @@
 from __future__ import (
     absolute_import, division, unicode_literals, print_function
 )
-from bcc import BPF
+from bcc import BPF, to_string
 from collections import defaultdict
 import argparse
 import json
@@ -376,7 +376,7 @@ def symbolize_with_objdump(binary, addr):
             (binary, addr)
         )
         output = subprocess.check_output(command, shell=True)
-        return output.decode('utf-8').strip()
+        return to_string(output).strip()
     except subprocess.CalledProcessError:
         return ''
 
@@ -528,7 +528,7 @@ def main():
                     key.mutex1,
                     key.mutex2,
                     thread_pid=leaf.thread_pid,
-                    thread_comm=leaf.comm.decode('utf-8'),
+                    thread_comm=to_string(leaf.comm),
                     first_mutex_stack_id=leaf.mutex1_stack_id,
                     second_mutex_stack_id=leaf.mutex2_stack_id,
                 )

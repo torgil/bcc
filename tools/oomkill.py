@@ -14,7 +14,7 @@
 #
 # 09-Feb-2016   Brendan Gregg   Created this.
 
-from bcc import BPF
+from bcc import BPF, to_string
 from time import strftime
 import ctypes as ct
 
@@ -68,7 +68,7 @@ def print_event(cpu, data, size):
         avgline = stats.read().rstrip()
     print(("%s Triggered by PID %d (\"%s\"), OOM kill of PID %d (\"%s\")"
         ", %d pages, loadavg: %s") % (strftime("%H:%M:%S"), event.fpid,
-        event.fcomm.decode(), event.tpid, event.tcomm.decode(), event.pages,
+        to_string(event.fcomm), event.tpid, to_string(event.tcomm), event.pages,
         avgline))
 
 # initialize BPF

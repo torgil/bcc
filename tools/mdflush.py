@@ -12,7 +12,7 @@
 # 13-Feb-2015   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 from time import strftime
 import ctypes as ct
 
@@ -61,7 +61,7 @@ print("%-8s %-6s %-16s %s" % ("TIME", "PID", "COMM", "DEVICE"))
 def print_event(cpu, data, size):
     event = ct.cast(data, ct.POINTER(Data)).contents
     print("%-8s %-6d %-16s %s" % (strftime("%H:%M:%S"), event.pid,
-        event.comm.decode(), event.disk.decode()))
+        to_string(event.comm), to_string(event.disk)))
 
 # read events
 b["events"].open_perf_buffer(print_event)

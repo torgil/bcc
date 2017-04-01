@@ -18,7 +18,7 @@ from __future__ import division
 # from __future__ import unicode_literals
 from __future__ import print_function
 
-from bcc import BPF
+from bcc import BPF, to_string
 from collections import defaultdict
 from time import strftime
 
@@ -72,7 +72,7 @@ def get_processes_stats(
     counts = bpf.get_table("counts")
     stats = defaultdict(lambda: defaultdict(int))
     for k, v in counts.items():
-        stats["%d-%d-%s" % (k.pid, k.uid, k.comm.decode())][k.ip] = v.value
+        stats["%d-%d-%s" % (k.pid, k.uid, to_string(k.comm))][k.ip] = v.value
     stats_list = []
 
     for pid, count in sorted(stats.items(), key=lambda stat: stat[0]):

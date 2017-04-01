@@ -17,7 +17,7 @@
 # 13-Jan-2016	Brendan Gregg	Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 from time import sleep, strftime
 import argparse
 import signal
@@ -185,7 +185,7 @@ while (1):
     for k, v in sorted(counts.items(), key=lambda counts: counts[1].value):
         if folded:
             # print folded stack output
-            line = k.name.decode() + ";"
+            line = to_string(k.name) + ";"
             for i in reversed(range(0, maxdepth)):
                 if k.ret[i] == 0:
                     continue

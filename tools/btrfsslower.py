@@ -25,7 +25,7 @@
 # 16-Oct-2016   Dina Goldshtein -p to filter by process ID.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 import argparse
 from time import strftime
 import ctypes as ct
@@ -311,12 +311,12 @@ def print_event(cpu, data, size):
 
     if (csv):
         print("%d,%s,%d,%s,%d,%d,%d,%s" % (
-            event.ts_us, event.task.decode(), event.pid, type, event.size,
-            event.offset, event.delta_us, event.file.decode()))
+            event.ts_us, to_string(event.task), event.pid, type, event.size,
+            event.offset, event.delta_us, to_string(event.file)))
         return
     print("%-8s %-14.14s %-6s %1s %-7s %-8d %7.2f %s" % (strftime("%H:%M:%S"),
-        event.task.decode(), event.pid, type, event.size, event.offset / 1024,
-        float(event.delta_us) / 1000, event.file.decode()))
+        to_string(event.task), event.pid, type, event.size, event.offset / 1024,
+        float(event.delta_us) / 1000, to_string(event.file)))
 
 # initialize BPF
 b = BPF(text=bpf_text)

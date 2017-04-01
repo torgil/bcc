@@ -17,7 +17,7 @@
 # 07-Feb-2016   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string, to_bytes
 import argparse
 import ctypes as ct
 import re
@@ -197,9 +197,9 @@ def print_event(cpu, data, size):
             if args.timestamp:
                 print("%-8.3f" % (time.time() - start_ts), end="")
             ppid = get_ppid(event.pid)
-            print("%-16s %-6s %-6s %3s %s" % (event.comm.decode(), event.pid,
+            print("%-16s %-6s %-6s %3s %s" % (to_string(event.comm), event.pid,
                     ppid if ppid > 0 else "?", event.retval,
-                    b' '.join(argv[event.pid]).decode()))
+                    to_string(b' '.join(argv[event.pid]))))
 
         del(argv[event.pid])
 

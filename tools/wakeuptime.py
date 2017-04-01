@@ -17,7 +17,7 @@
 # 14-Jan-2016	Brendan Gregg	Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 from time import sleep, strftime
 import argparse
 import signal
@@ -193,23 +193,23 @@ while (1):
     for k, v in sorted(counts.items(), key=lambda counts: counts[1].value):
         if folded:
             # print folded stack output
-            line = k.waker.decode() + ";"
+            line = to_string(k.waker) + ";"
             for i in reversed(range(0, maxdepth)):
                 if k.ret[i] == 0:
                     continue
                 line = line + b.ksym(k.ret[i])
                 if i != 0:
                     line = line + ";"
-            print("%s;%s %d" % (line, k.target.decode(), v.value))
+            print("%s;%s %d" % (line, to_string(k.target), v.value))
         else:
             # print default multi-line stack output
-            print("    %-16s %s" % ("target:", k.target.decode()))
+            print("    %-16s %s" % ("target:", to_string(k.target)))
             for i in range(0, maxdepth):
                 if k.ret[i] == 0:
                     break
                 print("    %-16x %s" % (k.ret[i],
                     b.ksym(k.ret[i])))
-            print("    %-16s %s" % ("waker:", k.waker.decode()))
+            print("    %-16s %s" % ("waker:", to_string(k.waker)))
             print("        %d\n" % v.value)
     counts.clear()
 

@@ -37,7 +37,7 @@
 # 15-Jul-2016   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF, Perf
+from bcc import BPF, Perf, to_string
 from sys import stderr
 from time import sleep
 import argparse
@@ -339,7 +339,7 @@ for k, v in sorted(counts.items(), key=lambda counts: counts[1].value):
         # print folded stack output
         user_stack = list(user_stack)
         kernel_stack = list(kernel_stack)
-        line = [k.name.decode()] + \
+        line = [to_string(k.name)] + \
             [b.sym(addr, k.pid) for addr in reversed(user_stack)] + \
             (do_delimiter and ["-"] or []) + \
             [aksym(addr) for addr in reversed(kernel_stack)]

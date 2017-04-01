@@ -14,7 +14,7 @@
 # 08-Oct-2016   Dina Goldshtein Support filtering by PID and TID.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 import argparse
 import ctypes as ct
 
@@ -175,7 +175,7 @@ def print_event(cpu, data, size):
 
     print("%-6d %-16s %4d %3d %s" %
           (event.id & 0xffffffff if args.tid else event.id >> 32,
-           event.comm.decode(), fd_s, err, event.fname.decode()))
+           to_string(event.comm), fd_s, err, to_string(event.fname)))
 
 # loop with callback to print_event
 b["events"].open_perf_buffer(print_event, page_cnt=64)

@@ -29,7 +29,7 @@
 # 06-Feb-2016   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 import argparse
 import ctypes as ct
 import time
@@ -235,12 +235,12 @@ def print_event(cpu, data, size):
     event = ct.cast(data, ct.POINTER(Data)).contents
 
     ms = float(event.delta_us) / 1000
-    name = event.name.decode()
+    name = to_string(event.name)
     if event.name_len > DNAME_INLINE_LEN:
         name = name[:-3] + "..."
 
     print("%-8.3f %-14.14s %-6s %1s %-7s %7.2f %s" % (
-        time.time() - start_ts, event.comm.decode(), event.pid,
+        time.time() - start_ts, to_string(event.comm), event.pid,
         mode_s[event.mode], event.sz, ms, name))
 
 b["events"].open_perf_buffer(print_event, page_cnt=64)

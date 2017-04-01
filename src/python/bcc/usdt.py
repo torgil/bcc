@@ -14,6 +14,7 @@
 
 import ctypes as ct
 import sys
+from . import to_string, to_bytes
 from .libbcc import lib, _USDT_CB, _USDT_PROBE_CB, \
                     bcc_usdt_location, bcc_usdt_argument, \
                     BCC_USDT_ARGUMENT_FLAGS
@@ -130,7 +131,7 @@ class USDT(object):
                 raise USDTException("USDT failed to instrument PID %d" % pid)
         elif path:
             self.path = path
-            self.context = lib.bcc_usdt_new_frompath(path.encode('ascii'))
+            self.context = lib.bcc_usdt_new_frompath(to_bytes(path))
             if self.context == None:
                 raise USDTException("USDT failed to instrument path %s" % path)
         else:
@@ -138,8 +139,8 @@ class USDT(object):
                     "either a pid or a binary path must be specified")
 
     def enable_probe(self, probe, fn_name):
-        if lib.bcc_usdt_enable_probe(self.context, probe.encode('ascii'),
-                fn_name.encode('ascii')) != 0:
+        if lib.bcc_usdt_enable_probe(self.context, to_bytes(probe),
+                to_bytes(fn_name)) != 0:
             raise USDTException(
                     ("failed to enable probe '%s'; a possible cause " +
                      "can be that the probe requires a pid to enable") %
@@ -147,8 +148,8 @@ class USDT(object):
                   )
 
     def enable_probe_or_bail(self, probe, fn_name):
-        if lib.bcc_usdt_enable_probe(self.context, probe.encode('ascii'),
-                fn_name.encode('ascii')) != 0:
+        if lib.bcc_usdt_enable_probe(self.context, to_bytes(probe),
+                to_bytes(fn_name)) != 0:
             print(
 """Error attaching USDT probes: the specified pid might not contain the
 given language's runtime, or the runtime was not built with the required
@@ -158,7 +159,7 @@ tplist tool.""")
             sys.exit(1)
 
     def get_text(self):
-        return lib.bcc_usdt_genargs(self.context).decode()
+        return to_string(lib.bcc_usdt_genargs(self.context))
 
     def get_probe_arg_ctype(self, probe_name, arg_index):
         return lib.bcc_usdt_get_probe_argctype(
@@ -177,7 +178,7 @@ tplist tool.""")
     def attach_uprobes(self, bpf):
         probes = self.enumerate_active_probes()
         for (binpath, fn_name, addr, pid) in probes:
-            bpf.attach_uprobe(name=binpath.decode(), fn_name=fn_name.decode(),
+            bpf.attach_uprobe(name=to_string(binpath), fn_name=to_string(fn_name),
                               addr=addr, pid=pid)
 
     def enumerate_active_probes(self):

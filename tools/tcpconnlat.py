@@ -15,7 +15,7 @@
 # 19-Feb-2016   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 from socket import inet_ntop, AF_INET, AF_INET6
 from struct import pack
 import argparse
@@ -200,7 +200,7 @@ def print_ipv4_event(cpu, data, size):
             start_ts = event.ts_us
         print("%-9.3f" % ((float(event.ts_us) - start_ts) / 1000000), end="")
     print("%-6d %-12.12s %-2d %-16s %-16s %-5d %.2f" % (event.pid,
-        event.task.decode(), event.ip,
+        to_string(event.task), event.ip,
         inet_ntop(AF_INET, pack("I", event.saddr)),
         inet_ntop(AF_INET, pack("I", event.daddr)), event.dport,
         float(event.delta_us) / 1000))
@@ -213,7 +213,7 @@ def print_ipv6_event(cpu, data, size):
             start_ts = event.ts_us
         print("%-9.3f" % ((float(event.ts_us) - start_ts) / 1000000), end="")
     print("%-6d %-12.12s %-2d %-16s %-16s %-5d %.2f" % (event.pid,
-        event.task.decode(), event.ip, inet_ntop(AF_INET6, event.saddr),
+        to_string(event.task), event.ip, inet_ntop(AF_INET6, event.saddr),
         inet_ntop(AF_INET6, event.daddr), event.dport,
         float(event.delta_us) / 1000))
 

@@ -14,7 +14,7 @@
 # 06-Feb-2016   Brendan Gregg   Created this.
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 from time import sleep, strftime
 import argparse
 import signal
@@ -189,14 +189,14 @@ while 1:
     for k, v in reversed(sorted(counts.items(),
                                 key=lambda counts:
                                   getattr(counts[1], args.sort))):
-        name = k.name.decode()
+        name = to_string(k.name)
         if k.name_len > DNAME_INLINE_LEN:
             name = name[:-3] + "..."
 
         # print line
         print("%-6d %-16s %-6d %-6d %-7d %-7d %1s %s" % (k.pid,
-            k.comm.decode(), v.reads, v.writes, v.rbytes / 1024,
-            v.wbytes / 1024, k.type.decode(), name))
+            to_string(k.comm), v.reads, v.writes, v.rbytes / 1024,
+            v.wbytes / 1024, to_string(k.type), name))
 
         line += 1
         if line >= maxrows:

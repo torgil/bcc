@@ -2,7 +2,7 @@
 # Copyright (c) PLUMgrid, Inc.
 # Licensed under the Apache License, Version 2.0 (the "License")
 
-from bcc import BPF
+from bcc import BPF, to_string
 from simulation import Simulation
 import sys
 import os
@@ -51,7 +51,7 @@ class TestBPFProgLoad(TestCase):
         except Exception:
             self.fp.flush()
             self.fp.seek(0)
-            self.assertEqual(error_msg in self.fp.read().decode(), True)
+            self.assertEqual(error_msg in to_string(self.fp.read()), True)
 
 
     def test_log_no_debug(self):
@@ -61,7 +61,7 @@ class TestBPFProgLoad(TestCase):
         except Exception:
             self.fp.flush()
             self.fp.seek(0)
-            self.assertEqual(error_msg in self.fp.read().decode(), True)
+            self.assertEqual(error_msg in to_string(self.fp.read()), True)
 
 
 if __name__ == "__main__":

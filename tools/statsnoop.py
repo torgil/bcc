@@ -13,7 +13,7 @@
 # 17-Feb-2016   Allan McAleavy updated for BPF_PERF_OUTPUT
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 import argparse
 import ctypes as ct
 
@@ -155,8 +155,8 @@ def print_event(cpu, data, size):
     if args.timestamp:
         print("%-14.9f" % (float(event.ts_ns - start_ts) / 1000000000), end="")
 
-    print("%-6d %-16s %4d %3d %s" % (event.pid, event.comm.decode(),
-        fd_s, err, event.fname.decode()))
+    print("%-6d %-16s %4d %3d %s" % (event.pid, to_string(event.comm),
+        fd_s, err, to_string(event.fname)))
 
 # loop with callback to print_event
 b["events"].open_perf_buffer(print_event, page_cnt=64)

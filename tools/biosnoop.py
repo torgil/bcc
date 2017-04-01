@@ -14,7 +14,7 @@
 # 11-Feb-2016   Allan McAleavy  updated for BPF_PERF_OUTPUT
 
 from __future__ import print_function
-from bcc import BPF
+from bcc import BPF, to_string
 import ctypes as ct
 import re
 
@@ -175,8 +175,8 @@ def print_event(cpu, data, size):
         delta = float(delta) + (event.ts - prev_ts)
 
     print("%-14.9f %-14.14s %-6s %-7s %-2s %-9s %-7s %7.2f" % (
-        delta / 1000000, event.name.decode(), event.pid,
-        event.disk_name.decode(), rwflg, val,
+        delta / 1000000, to_string(event.name), event.pid,
+        to_string(event.disk_name), rwflg, val,
         event.len, float(event.delta) / 1000000))
 
     prev_ts = event.ts
